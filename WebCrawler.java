@@ -16,12 +16,13 @@ import java.util.*;
 public class WebCrawler {
 
     private Socket sock; 
+	private long serverRT; // Server Response Time
 
 	public WebCrawler() {
 		sock = new Socket();
+		serverRT = 0;
 	}
 
-	//public void crawl(String host, int port, String path)
 	public void crawl(String url)  
 						throws UnknownHostException, IOException, URISyntaxException {
 		String[] urls;
@@ -44,6 +45,7 @@ public class WebCrawler {
 		String html = recvGetResponse();
 
 		System.out.println(html);
+		System.out.println("Server Response Time: " + serverRT  + "ms");
 
 		sock.close();
 	}
@@ -52,9 +54,17 @@ public class WebCrawler {
 
 		DataOutputStream dos = new DataOutputStream(sock.getOutputStream());
 
+		//Request start time
+		long startTime = System.currentTimeMillis();
+
+		//Get Request
 		dos.writeBytes("GET " + path + " HTTP/1.1\r\n");
 		dos.writeBytes("Host: " + host + "\r\n");
 		dos.writeBytes("Connection: close\r\n\r\n");
+
+		//Request end time
+		long endTime = System.currentTimeMillis();
+		serverRT += (endTime - startTime);
 	}
 
 	private String recvGetResponse() throws IOException {
@@ -64,6 +74,16 @@ public class WebCrawler {
 		StringBuffer sb = new StringBuffer();
 		String line = "";
 		
+		// Response start time
+		long startTime = System.currentTimeMillis();
+
+		sb.append(bufferedReader.readLine());
+		
+		// Response end time
+		long endTime = System.currentTimeMillis();
+		serverRT += (endTime - startTime);
+
+		//Get Response
 		while ((line = bufferedReader.readLine()) != null) {
 		    sb.append(line);
 		}
