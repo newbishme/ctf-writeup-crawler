@@ -16,17 +16,18 @@ import java.util.*;
 public class WebCrawler {
 
     private Socket sock; 
+    private URI uri;
 	private long serverRT; // Server Response Time
 
-	public WebCrawler() {
+	public WebCrawler(String url) throws URISyntaxException {
 		sock = new Socket();
+		uri = new URI(url);
 		serverRT = 0;
 	}
 
-	public void crawl(String url)  
+	public void crawl()  
 						throws UnknownHostException, IOException, URISyntaxException {
 		String[] urls;
-		URI uri = new URI(url);
 		String host = uri.getHost();
 		int port = getPort(uri);
 		String path = uri.getPath();

@@ -7,11 +7,12 @@ public class WebCrawlerDriver {
 	public static void main(String[] args) {
 		String[] seedUrls = {"https://github.com/ctfs/write-ups-2015", 
 								"http://mslc.ctf.su/wp/awesomecorp-secured-ranges-300/"};
-		WebCrawler webCrawler = new WebCrawler();
+		
 		
 		try {
 			for (int i = 0; i < seedUrls.length; i++) {
-				webCrawler.crawl(seedUrls[i]);
+				WebCrawler webCrawler = new WebCrawler(seedUrls[i]);
+				webCrawler.crawl();
 			}
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
