@@ -1,37 +1,37 @@
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.net.PortUnreachableException;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
 import javax.net.ssl.*;
 import java.net.UnknownHostException;
 import java.util.*;
-import java.util.ArrayList;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-public class WebCrawler {
+public class WebCrawler implements Runnable {
 
-    private Socket sock; 
+	private ParallelCrawlerHandler parallelCrawlerHandler;
+    private Socket sock;
+    private String url;
     private URI uri;
 	private long serverRT; // Server Response Time
 
-	public WebCrawler(String url) throws URISyntaxException {
+	public WebCrawler(ParallelCrawlerHandler parallelCrawlerHandler, String url) throws URISyntaxException {
+		this.parallelCrawlerHandler = parallelCrawlerHandler;
+		this.url = url;
 		sock = new Socket();
 		uri = new URI(url);
 		serverRT = 0;
 	}
 
-	public void crawl() throws UnknownHostException, IOException, URISyntaxException {
-		String[] urls;
+	public ArrayList<String> crawl() throws UnknownHostException, IOException, URISyntaxException {
 		String host = uri.getHost();
 		int port = getPort(uri);
 		String path = uri.getPath();
@@ -42,20 +42,15 @@ public class WebCrawler {
 			SSLSocketFactory ssf = (SSLSocketFactory) SSLSocketFactory.getDefault();
 			sock = ssf.createSocket(host, port);
 		} else {
-			return;
+			return null;
 		}
-
-		System.out.println(sock);
+		
 		sendGetRequest(path, host);
 		String html = recvGetResponse();
 		ArrayList<String> absLinks = getLinksFromHTML(html);
 		
-		for (int i = 0; i < absLinks.size(); i++) {
-			System.out.println(absLinks.get(i));
-		}
-		System.out.println("Server Response Time: " + serverRT  + "ms");
-
 		sock.close();
+		return absLinks;
 	}
 
 	private void sendGetRequest(String path, String host) throws IOException {
@@ -131,4 +126,33 @@ public class WebCrawler {
 		return absLinks;
 	}
 
+	@Override
+	public void run() {
+		if (uri == null) {
+			return;
+		}
+		ArrayList<String> links = null;
+
+		try {
+			links = crawl();
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+			return;
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+			return;
+		} catch (PortUnreachableException e) {
+			e.printStackTrace();
+			return;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return;
+		}
+		
+		if (links != null) {
+			parallelCrawlerHandler.addCrawledUrls(url, serverRT, links);
+		}
+		
+		return;
+	}	
 }

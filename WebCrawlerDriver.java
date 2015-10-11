@@ -1,19 +1,21 @@
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 
 public class WebCrawlerDriver {
 
 	public static void main(String[] args) {
-		String[] seedUrls = {"https://ctftime.org/writeups", 
-								"http://mslc.ctf.su/wp/awesomecorp-secured-ranges-300/"};
+		ArrayList<String> seedUrls = new ArrayList<String>();
+		int maxUrls = 500;
+		int maxCrawlers = 100;
 		
+		seedUrls.add("https://ctftime.org/writeups");
+		seedUrls.add("http://mslc.ctf.su/wp/awesomecorp-secured-ranges-300/");
 		
 		try {
-			for (int i = 0; i < seedUrls.length; i++) {
-				WebCrawler webCrawler = new WebCrawler(seedUrls[i]);
-				webCrawler.crawl();
-			}
+			ParallelCrawlerHandler parallelCrawlerHandler = new ParallelCrawlerHandler(seedUrls, maxUrls, maxCrawlers);
+			parallelCrawlerHandler.beginCrawl();
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 		} catch (UnknownHostException e) {
