@@ -12,6 +12,11 @@ import java.net.URISyntaxException;
 import javax.net.ssl.*;
 import java.net.UnknownHostException;
 import java.util.*;
+import java.util.ArrayList;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 public class WebCrawler {
 
@@ -25,8 +30,7 @@ public class WebCrawler {
 		serverRT = 0;
 	}
 
-	public void crawl()  
-						throws UnknownHostException, IOException, URISyntaxException {
+	public void crawl() throws UnknownHostException, IOException, URISyntaxException {
 		String[] urls;
 		String host = uri.getHost();
 		int port = getPort(uri);
@@ -44,8 +48,11 @@ public class WebCrawler {
 		System.out.println(sock);
 		sendGetRequest(path, host);
 		String html = recvGetResponse();
-
-		System.out.println(html);
+		ArrayList<String> absLinks = getLinksFromHTML(html);
+		
+		for (int i = 0; i < absLinks.size(); i++) {
+			System.out.println(absLinks.get(i));
+		}
 		System.out.println("Server Response Time: " + serverRT  + "ms");
 
 		sock.close();
@@ -102,6 +109,26 @@ public class WebCrawler {
 		    }
 		}
 		return -1;
+	}
+	
+	private ArrayList<String> getLinksFromHTML(String html) {
+		//NOTE: may need to detect if href is relative link
+		ArrayList<String> absLinks = new ArrayList<String>();
+		String absLink;
+		Document doc = Jsoup.parse(html);
+		Elements links = doc.select("a[href]");
+		for (Element link : links) {
+			absLink = link.attr("abs:href");
+			
+			//href is root-relative link
+			if (absLink == ""){ 
+				absLink = uri.getScheme()+ "://" + uri.getAuthority() + link.attr("href");
+				absLinks.add(absLink);
+			} else {
+				absLinks.add(absLink);
+			}
+        }
+		return absLinks;
 	}
 
 }

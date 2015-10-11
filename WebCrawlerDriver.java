@@ -5,7 +5,7 @@ import java.net.UnknownHostException;
 public class WebCrawlerDriver {
 
 	public static void main(String[] args) {
-		String[] seedUrls = {"https://github.com/ctfs/write-ups-2015", 
+		String[] seedUrls = {"https://ctftime.org/writeups", 
 								"http://mslc.ctf.su/wp/awesomecorp-secured-ranges-300/"};
 		
 		
