@@ -11,12 +11,15 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 
+/**
+ * This is the multi-threaded handler class for the parallel web crawler.
+ */
 public class ParallelCrawlerHandler {
 
 	private static final String FILENAME = "writeup_urls.txt";
 	private static final int REQUEST_DELAY = 3000;
 	private int maxUrls;
-	private int maxCrawlers;
+	private int maxThreads;
 	
 	private HashSet<String> crawledUrls = new HashSet<String>();
 	private ArrayList<String> crawlingUrls = new ArrayList<String>();
@@ -25,18 +28,32 @@ public class ParallelCrawlerHandler {
 	private ArrayList<String> resultUrls = new ArrayList<String>();
 	
 	
-	public ParallelCrawlerHandler(ArrayList<String> seedUrls, int maxUrls, int maxCrawlers) throws URISyntaxException {
+	/**
+	 * Constructor for ParallelCrawlerHandler
+	 * @param seedUrls The initial urls for crawling.
+	 * @param maxUrls The maximum number of urls to crawl.
+	 * @param maxThreads The maximum number of threads (WebCrawlers) at any point of time.
+	 * @throws URISyntaxException
+	 */
+	public ParallelCrawlerHandler(ArrayList<String> seedUrls, int maxUrls, int maxThreads) throws URISyntaxException {
 		
 		this.maxUrls = maxUrls;
-		this.maxCrawlers = maxCrawlers;
-		ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<Runnable>(maxCrawlers, true);
-		this.executorPool = new ThreadPoolExecutor(maxCrawlers, maxCrawlers, Long.MAX_VALUE, TimeUnit.SECONDS, workQueue);
+		this.maxThreads = maxThreads;
+		ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<Runnable>(maxThreads, true);
+		this.executorPool = new ThreadPoolExecutor(maxThreads, maxThreads, Long.MAX_VALUE, TimeUnit.SECONDS, workQueue);
 		addToCrawlingUrls(seedUrls);
 	}
 	
+	
+	/**
+	 * Begin the parallel crawler. All crawled links will be written to a file.
+	 * @throws UnknownHostException
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
 	public void beginCrawl() throws UnknownHostException, IOException, URISyntaxException {
 		while ((crawledCounts < maxUrls) && !hasReachCrawlerLimit()) {
-			if (crawlingUrls.isEmpty() || executorPool.getActiveCount() >= maxCrawlers) {
+			if (crawlingUrls.isEmpty() || executorPool.getActiveCount() >= maxThreads) {
 				continue;
 			}
 
@@ -63,6 +80,12 @@ public class ParallelCrawlerHandler {
 		}
 	}	
 
+	/**
+	 * Callback function used by the WebCrawler to update the crawlingUrls and resultUrls.
+	 * @param crawledLink the link that was visited.
+	 * @param serverRT the server response time.
+	 * @param links the list of URL strings to visit next.
+	 */
 	public synchronized void addCrawledUrls(String crawledLink, long serverRT, ArrayList<String> links) {
 		if (crawledCounts >= maxUrls) {
 			return;
@@ -75,6 +98,10 @@ public class ParallelCrawlerHandler {
 		addToCrawlingUrls(links);
 	}
 	
+	/**
+	 * Add a list of URLs to the crawlingUrls list. 
+	 * @param urlList The list of URLs of Strings type.
+	 */
 	private void addToCrawlingUrls(ArrayList<String> urlList) {
 		for (String url : urlList) {
 			if (!crawledUrls.contains(url)) {
@@ -83,10 +110,19 @@ public class ParallelCrawlerHandler {
 		}
 	}
 	
+	/**
+	 * Checks if there are any more links left to visit and any more threads running. 
+	 * If crawlingUrls is empty and no thread is running, crawler limit has reached.
+	 * @return true if reached crawler limit, else return false.
+	 */
 	private boolean hasReachCrawlerLimit() {
 		return crawlingUrls.isEmpty() && (executorPool.getActiveCount() == 0);
 	}
 	
+	
+	/**
+	 * Writes the resultsUrls into the file of FILENAME.
+	 */
 	private void writeToFile() {
 		try {
 			File file = new File(FILENAME);

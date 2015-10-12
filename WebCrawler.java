@@ -15,6 +15,13 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+
+/**
+ * The WebCrawler class represents one worker(thread) in the ParallelCrawlerHandler class
+ * The WebCrawler will send a GET request to a given URL and measure the server response time. 
+ * This class will also extract all the links from the given URL.
+ * This class use Jsoup library for html parsing.
+ */
 public class WebCrawler implements Runnable {
 
 	private ParallelCrawlerHandler parallelCrawlerHandler;
@@ -23,6 +30,12 @@ public class WebCrawler implements Runnable {
     private URI uri;
 	private long serverRT; // Server Response Time
 
+	/**
+	 * Constructor for WebCrawler
+	 * @param parallelCrawlerHandler The handler to callback to.
+	 * @param url The url to crawl.
+	 * @throws URISyntaxException
+	 */
 	public WebCrawler(ParallelCrawlerHandler parallelCrawlerHandler, String url) throws URISyntaxException {
 		this.parallelCrawlerHandler = parallelCrawlerHandler;
 		this.url = url;
@@ -31,6 +44,13 @@ public class WebCrawler implements Runnable {
 		serverRT = 0;
 	}
 
+	/**
+	 * Open socket connection to the given url and obtain the absolute links inside the url.
+	 * @return the list of absolute URLs obtained.
+	 * @throws UnknownHostException
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
 	public ArrayList<String> crawl() throws UnknownHostException, IOException, URISyntaxException {
 		String host = uri.getHost();
 		int port = getPort(uri);
@@ -45,7 +65,7 @@ public class WebCrawler implements Runnable {
 			return null;
 		}
 		
-		sendGetRequest(path, host);
+		sendGetRequest(host, path);
 		String html = recvGetResponse();
 		ArrayList<String> absLinks = getLinksFromHTML(html);
 		
@@ -53,7 +73,13 @@ public class WebCrawler implements Runnable {
 		return absLinks;
 	}
 
-	private void sendGetRequest(String path, String host) throws IOException {
+	/**
+	 * Send the GET Request to the established socket.
+	 * @param host the URI host. 
+	 * @param path the URI request path.
+	 * @throws IOException
+	 */
+	private void sendGetRequest(String host, String path) throws IOException {
 
 		DataOutputStream dos = new DataOutputStream(sock.getOutputStream());
 
@@ -70,6 +96,9 @@ public class WebCrawler implements Runnable {
 		serverRT += (endTime - startTime);
 	}
 
+	/**
+	 * Get the response of the GET Request from the socket.
+	 */
 	private String recvGetResponse() throws IOException {
 
 		InputStream inputStream = sock.getInputStream();
@@ -94,6 +123,11 @@ public class WebCrawler implements Runnable {
 		return sb.toString();
 	}
 
+	/**
+	 * Gets the port based on the URI's scheme.
+	 * @param uri the URI of given url.
+	 * @return 80 if HTTP, or 443 if HTTPS, else -1
+	 */
 	private int getPort(URI uri) {
 		String protocol = uri.getScheme(); 
 		if (uri.getPort() == -1) {
@@ -106,6 +140,11 @@ public class WebCrawler implements Runnable {
 		return -1;
 	}
 	
+	/**
+	 * Get the absolute links from the give html String.
+	 * @param html the html received from the GET Request.
+	 * @return the list of absolute links.
+	 */
 	private ArrayList<String> getLinksFromHTML(String html) {
 		//NOTE: may need to detect if href is relative link
 		ArrayList<String> absLinks = new ArrayList<String>();
@@ -126,6 +165,9 @@ public class WebCrawler implements Runnable {
 		return absLinks;
 	}
 
+	/**
+	 * Thread entry point. The thread will crawl and obtain links in the given url to update handler
+	 */
 	@Override
 	public void run() {
 		if (uri == null) {
