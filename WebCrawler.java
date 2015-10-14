@@ -24,6 +24,13 @@ import org.jsoup.select.Elements;
  */
 public class WebCrawler implements Runnable {
 
+	// Maybe use a class or a file to keep this filter list
+	// Need another way to check url extension? filter off png, jpg, exe, etc
+	private final String[] URL_FILTER_KEYWORDS_GENERIC = {"google", "facebook", "twitter", "png", "jpg", "exe", "pdf", "#",
+															"wolframalpha", "wikipedia", "wiki"};
+	private final String[] URL_FILTER_KEYWORDS_CTFTIME_ORG = {"facebook", "twitter", "contact", "about","faq", "#", "/ctf/", 
+																"login", "stats", "dating", "team", "event", "task", "calendar"};
+	
 	private ParallelCrawlerHandler parallelCrawlerHandler;
     private Socket sock;
     private String url;
@@ -157,14 +164,44 @@ public class WebCrawler implements Runnable {
 			//href is root-relative link
 			if (absLink == ""){ 
 				absLink = uri.getScheme()+ "://" + uri.getAuthority() + link.attr("href");
-				absLinks.add(absLink);
-			} else {
+			}
+			
+			if (!containUrlFilterKeyword(absLink)) {
 				absLinks.add(absLink);
 			}
         }
 		return absLinks;
 	}
 
+	/**
+	 * Check if the absolute link has any black listed keyword.
+	 * @param abslink the url to be checked
+	 * @return true if contain black listed keyword, else false.
+	 */
+	private boolean containUrlFilterKeyword(String absLink) {
+		try {
+			URI absLinkUri = new URI(absLink);
+			//System.out.println(absLinkUri.getHost());
+			String absLinkHost = absLinkUri.getHost();
+			if (!absLinkHost.isEmpty()) {
+				if(absLinkHost.equalsIgnoreCase("ctftime.org")) {
+					for (String keyword : URL_FILTER_KEYWORDS_CTFTIME_ORG) {
+						if (absLink.contains(keyword)) return true;
+					}
+				} else {
+					for (String keyword : URL_FILTER_KEYWORDS_GENERIC ) {
+						if (absLink.contains(keyword)) return true;
+					}
+				}
+				return false;
+			} else {
+				return true;
+			}
+		} catch (URISyntaxException e) {
+			return true;
+		}
+	}
+	
 	/**
 	 * Thread entry point. The thread will crawl and obtain links in the given url to update handler
 	 */
