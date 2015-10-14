@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 public class ParallelCrawlerHandler {
 
 	private static final String FILENAME = "writeup_urls.txt";
-	private static final int REQUEST_DELAY = 3000;
+	private static final int REQUEST_DELAY = 500;
 	private int maxUrls;
 	private int maxThreads;
 	
@@ -52,6 +52,7 @@ public class ParallelCrawlerHandler {
 	 * @throws URISyntaxException
 	 */
 	public void beginCrawl() throws UnknownHostException, IOException, URISyntaxException {
+		String url;
 		while ((crawledCounts < maxUrls) && !hasReachCrawlerLimit()) {
 			if (crawlingUrls.isEmpty() || executorPool.getActiveCount() >= maxThreads) {
 				continue;
@@ -63,10 +64,12 @@ public class ParallelCrawlerHandler {
 				e.printStackTrace();
 			}
 			
-			String url = crawlingUrls.get(0);
+			url = crawlingUrls.get(0);
 			crawlingUrls.remove(0);
-			
-			executorPool.execute(new WebCrawler(this, url));
+			if (!crawledUrls.contains(url)) {
+				crawledUrls.add(url);
+				executorPool.execute(new WebCrawler(this, url));
+			}
 		}
 		
 		executorPool.shutdownNow();
