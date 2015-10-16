@@ -169,7 +169,6 @@ public class WebCrawler implements Runnable {
 				absLinks.add(absLink);
 			}
         }
-		
 		categoryTag = category.getTags(doc);
 		return absLinks;
 	}

@@ -11,10 +11,12 @@ public class UrlFilter {
 	private static UrlFilter singletonInstance = null;
 	
 	// Need another way to check url extension? filter off png, jpg, exe, etc
-	private final String[] URL_FILTER_KEYWORDS_GENERIC = {"google", "facebook", "twitter", "png", "jpg", "exe", "pdf", "#",
-															"wolframalpha", "wikipedia", "wiki", "github"};
-	private final String[] URL_FILTER_KEYWORDS_CTFTIME_ORG = {"facebook", "twitter", "contact", "about","faq", "#", "/ctf/", 
-																"login", "stats", "dating", "team", "event", "task", "calendar"};
+	private final String[] FILTER_KEYWORDS_GENERIC = {"google", "facebook", "twitter", "png", "jpg", "exe", "pdf", "#",
+														"wolframalpha", "wikipedia", "wiki", "github", "wordpress",
+														"contact", "faq", "about", "login", "sourceforge", "media"};
+	private final String[] FILTER_KEYWORDS_CTFTIME_ORG = {"/ctf/", "stats", "dating", "team", "event", "task", "calendar"};
+	private final String[] FILTER_KEYWORDS_NANDYNARWHALS_ORG = {"scripting-for-ctfs", "comment"};
+	private final String[] FILTER_KEYWORDS_0X90R00T_COM = {"about-us",};
 	
 	/**
 	 * Provides reference of the Category singleton if it exists, or returns it after creating it
@@ -43,11 +45,18 @@ public class UrlFilter {
 		try {
 			URI absLinkUri = new URI(absLink);
 			String absLinkHost = absLinkUri.getHost();
-			if (!absLinkHost.isEmpty()) {
+			if (absLinkHost != null && !absLinkHost.isEmpty()) {
+				if(isInFilterKeywords(absLink,FILTER_KEYWORDS_GENERIC)) {
+					return true;
+				}
 				if(absLinkHost.equalsIgnoreCase("ctftime.org")) {
-					return isInUrlFilterKeywords(absLink,URL_FILTER_KEYWORDS_CTFTIME_ORG);
+					return isInFilterKeywords(absLink,FILTER_KEYWORDS_CTFTIME_ORG);
+				} else if (absLinkHost.equalsIgnoreCase("nandynarwhals.org")) {
+					return isInFilterKeywords(absLink,FILTER_KEYWORDS_NANDYNARWHALS_ORG);
+				} else if (absLinkHost.equalsIgnoreCase("0x90r00t.com")) {
+					return isInFilterKeywords(absLink,FILTER_KEYWORDS_0X90R00T_COM );
 				} else {
-					return isInUrlFilterKeywords(absLink,URL_FILTER_KEYWORDS_GENERIC);
+					return false;
 				}
 			} else {
 				return true;
@@ -64,7 +73,7 @@ public class UrlFilter {
 	 * @param keywords the array of keywords
 	 * @return true if the absLink contain the keyword, else false.
 	 */
-	private boolean isInUrlFilterKeywords(String absLink, String[] keywords) {
+	private boolean isInFilterKeywords(String absLink, String[] keywords) {
 		for (String keyword : keywords) {
 			if (absLink.contains(keyword)) 
 				return true;

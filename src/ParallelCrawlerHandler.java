@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 public class ParallelCrawlerHandler {
 
 	private static final String FILENAME = "writeup_urls.txt";
-	private static final int REQUEST_DELAY = 1000;
+	private static final int REQUEST_DELAY = 100;
 	private int maxUrls;
 	private int maxThreads;
 	
@@ -53,7 +53,7 @@ public class ParallelCrawlerHandler {
 	 */
 	public void beginCrawl() throws UnknownHostException, IOException, URISyntaxException {
 		String url;
-		while ((crawledCounts < maxUrls) && !hasReachCrawlerLimit()) {
+		while ((crawledCounts < maxUrls) && !isCrawlerExhausted()) {
 			if (crawlingUrls.isEmpty() || executorPool.getActiveCount() >= maxThreads) {
 				continue;
 			}
@@ -62,6 +62,10 @@ public class ParallelCrawlerHandler {
 				Thread.sleep(REQUEST_DELAY);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
+			}
+			
+			if ( (crawledCounts%50) == 0) {
+				crawlingUrls.removeAll(crawledUrls);
 			}
 			
 			url = crawlingUrls.get(0);
@@ -95,13 +99,13 @@ public class ParallelCrawlerHandler {
 		}
 		
 		crawledUrls.add(crawledLink);
+		crawledCounts += 1;
 		if (categoryTag.isEmpty()) {
 			//resultUrls.add(crawledLink + " " + serverRT + "ms");
-			System.out.println("Visited: " +crawledLink + " " + serverRT + "ms");
+			System.out.println(crawledCounts + ": " + crawledLink + " " + serverRT + "ms");
 		} else {
-			crawledCounts += 1;
 			resultUrls.add(crawledLink + " " + serverRT + "ms " + categoryTag);
-			System.out.println("Visited: " +crawledLink + " " + serverRT + "ms " + categoryTag);
+			System.out.println(crawledCounts + ": " + crawledLink + " " + serverRT + "ms " + categoryTag);
 		}	
 		addToCrawlingUrls(links);
 	}
@@ -120,10 +124,10 @@ public class ParallelCrawlerHandler {
 	
 	/**
 	 * Checks if there are any more links left to visit and any more threads running. 
-	 * If crawlingUrls is empty and no thread is running, crawler limit has reached.
-	 * @return true if reached crawler limit, else return false.
+	 * If crawlingUrls is empty and no thread is running, crawler has exhausted.
+	 * @return true if reached crawler exhausted, else return false.
 	 */
-	private boolean hasReachCrawlerLimit() {
+	private boolean isCrawlerExhausted() {
 		return crawlingUrls.isEmpty() && (executorPool.getActiveCount() == 0);
 	}
 	
