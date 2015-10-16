@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit;
 public class ParallelCrawlerHandler {
 
 	private static final String FILENAME = "writeup_urls.txt";
-	private static final int REQUEST_DELAY = 500;
+	private static final int REQUEST_DELAY = 1000;
 	private int maxUrls;
 	private int maxThreads;
 	
@@ -89,15 +89,20 @@ public class ParallelCrawlerHandler {
 	 * @param serverRT the server response time.
 	 * @param links the list of URL strings to visit next.
 	 */
-	public synchronized void addCrawledUrls(String crawledLink, long serverRT, ArrayList<String> links) {
+	public synchronized void addCrawledUrls(String crawledLink, long serverRT, ArrayList<String> links, String categoryTag) {
 		if (crawledCounts >= maxUrls) {
 			return;
 		}
 		
 		crawledUrls.add(crawledLink);
-		crawledCounts += 1;
-		resultUrls.add(crawledLink + " " + serverRT + "ms");
-		System.out.println("Visited: " +crawledLink + " " + serverRT + "ms");
+		if (categoryTag.isEmpty()) {
+			//resultUrls.add(crawledLink + " " + serverRT + "ms");
+			System.out.println("Visited: " +crawledLink + " " + serverRT + "ms");
+		} else {
+			crawledCounts += 1;
+			resultUrls.add(crawledLink + " " + serverRT + "ms " + categoryTag);
+			System.out.println("Visited: " +crawledLink + " " + serverRT + "ms " + categoryTag);
+		}	
 		addToCrawlingUrls(links);
 	}
 	

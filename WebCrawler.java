@@ -27,7 +27,7 @@ public class WebCrawler implements Runnable {
 	// Maybe use a class or a file to keep this filter list
 	// Need another way to check url extension? filter off png, jpg, exe, etc
 	private final String[] URL_FILTER_KEYWORDS_GENERIC = {"google", "facebook", "twitter", "png", "jpg", "exe", "pdf", "#",
-															"wolframalpha", "wikipedia", "wiki"};
+															"wolframalpha", "wikipedia", "wiki", "github"};
 	private final String[] URL_FILTER_KEYWORDS_CTFTIME_ORG = {"facebook", "twitter", "contact", "about","faq", "#", "/ctf/", 
 																"login", "stats", "dating", "team", "event", "task", "calendar"};
 	
@@ -36,6 +36,8 @@ public class WebCrawler implements Runnable {
     private String url;
     private URI uri;
 	private long serverRT; // Server Response Time
+	private Category category;
+	private String categoryTag;
 
 	/**
 	 * Constructor for WebCrawler
@@ -49,6 +51,8 @@ public class WebCrawler implements Runnable {
 		sock = new Socket();
 		uri = new URI(url);
 		serverRT = 0;
+		categoryTag = "";
+		category = Category.getInstance();
 	}
 
 	/**
@@ -170,6 +174,8 @@ public class WebCrawler implements Runnable {
 				absLinks.add(absLink);
 			}
         }
+		
+		categoryTag = category.getTags(doc);
 		return absLinks;
 	}
 
@@ -229,7 +235,7 @@ public class WebCrawler implements Runnable {
 		}
 		
 		if (links != null) {
-			parallelCrawlerHandler.addCrawledUrls(url, serverRT, links);
+			parallelCrawlerHandler.addCrawledUrls(url, serverRT, links, categoryTag);
 		}
 		
 		return;
