@@ -7,9 +7,12 @@ import java.net.PortUnreachableException;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
+
 import javax.net.ssl.*;
+
 import java.net.UnknownHostException;
 import java.util.*;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -61,7 +64,7 @@ public class WebCrawler implements Runnable {
 		String host = uri.getHost();
 		int port = getPort(uri);
 		String path = uri.getPath();
-
+		
 		if (port == 80) {
 			sock = new Socket(host, port);
 		} else if (port == 443) {

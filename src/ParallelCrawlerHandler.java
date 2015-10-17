@@ -64,7 +64,7 @@ public class ParallelCrawlerHandler {
 				e.printStackTrace();
 			}
 			
-			if ( (crawledCounts%50) == 0) {
+			if ( crawlingUrls.size() > 500) {
 				crawlingUrls.removeAll(crawledUrls);
 			}
 			
@@ -78,6 +78,7 @@ public class ParallelCrawlerHandler {
 		
 		executorPool.shutdownNow();
 		writeToFile();
+		System.out.println("crawledUrls: " + crawledUrls.size() + " crawlingUrls: " + crawlingUrls.size());
 	
         while (!executorPool.isTerminated()) {
 			// do nothing and wait
@@ -106,7 +107,8 @@ public class ParallelCrawlerHandler {
 		} else {
 			resultUrls.add(crawledLink + " " + serverRT + "ms " + categoryTag);
 			System.out.println(crawledCounts + ": " + crawledLink + " " + serverRT + "ms " + categoryTag);
-		}	
+		}
+		
 		addToCrawlingUrls(links);
 	}
 	
