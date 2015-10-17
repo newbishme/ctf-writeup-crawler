@@ -13,14 +13,14 @@ public class WebCrawlerDriver {
 
 	public static void main(String[] args) {
 		ArrayList<String> seedUrls = new ArrayList<String>();
-		int maxUrls = 500;
+		int maxUrls = 5000;
 		int maxThreads = 50;
 		
 		seedUrls.add("https://ctftime.org/writeups/");
-		//seedUrls.add("http://nandynarwhals.org");	
+		seedUrls.add("http://nandynarwhals.org");	
 		seedUrls.add("https://0x90r00t.com");
-		//seedUrls.add("http://blog.squareroots.de/en/");
-		//seedUrls.add("http://0xecute.com/");
+		seedUrls.add("http://blog.squareroots.de/en/");
+		seedUrls.add("http://0xecute.com/");
 		
 		try {
 			ParallelCrawlerHandler parallelCrawlerHandler = new ParallelCrawlerHandler(seedUrls, maxUrls, maxThreads);

@@ -3,6 +3,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.ConnectException;
 import java.net.PortUnreachableException;
 import java.net.Socket;
 import java.net.URI;
@@ -60,11 +61,12 @@ public class WebCrawler implements Runnable {
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	public ArrayList<String> crawl() throws UnknownHostException, IOException, URISyntaxException {
+	public ArrayList<String> crawl() throws ConnectException, UnknownHostException, IOException, URISyntaxException {
 		String host = uri.getHost();
 		int port = getPort(uri);
 		String path = uri.getPath();
-		
+		String query = uri.getQuery();
+
 		if (port == 80) {
 			sock = new Socket(host, port);
 		} else if (port == 443) {
@@ -72,6 +74,10 @@ public class WebCrawler implements Runnable {
 			sock = ssf.createSocket(host, port);
 		} else {
 			return null;
+		}
+	
+		if(query != null) {
+			path += "?" + query;
 		}
 		
 		sendGetRequest(host, path);
@@ -188,6 +194,8 @@ public class WebCrawler implements Runnable {
 
 		try {
 			links = crawl();
+		} catch (ConnectException e) {
+			return;
 		} catch (URISyntaxException e) {
 			e.printStackTrace();
 			return;

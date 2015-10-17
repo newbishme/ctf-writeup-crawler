@@ -23,41 +23,6 @@ public class UrlFilter {
 	private final String[] FILTER_KEYWORDS_NANDYNARWHALS_ORG = {"scripting-for-ctfs", "comment"};
 	private final String[] FILTER_KEYWORDS_0X90R00T_COM = {"about-us",};
 	
-//	private final String[]	WHITELIST_DOMAIN = {"maryjane.ru",
-//												"ctftime.org",
-//												"nandynarwhals.org",
-//												"0x90r00t.com",
-//												"kt.pe",
-//												"0xecute.com",									
-//												"blog.squareroots.de",
-//												"br0ns.dk",
-//												"81glntd.blogspot.sg",
-//												"ibrahim-elsayed.com	",								
-//												"b01lers.net",
-//												"akaminsky.net",
-//												"whitehatters.academy",
-//												"khack40.info",
-//												"security.claudio.pt",
-//												"capturetheswag.blogspot.com.au",
-//												"thekillingtime.com",
-//												"kikisctf.blogspot.hr",
-//												"cafelinux.info",
-//												"blog.bitsforeveryone.com",
-//												"toh.necst.it",
-//												"cclub.cs.wmich.edu",
-//												"ctf-for-beginners.blogspot.sg",
-//												"fadec0d3.blogspot.sg",
-//												"www.securifera.com",
-//												"ohaithe.re",
-//												"buer.haus",
-//												"www.truedigitalsecurity.com",
-//												"zybuluo.com",
-//												"trich.im",
-//												"gameofpwnz.com",
-//												"pawpetersen.dk",
-//												"incertia.net",
-//												"reyammer.blogspot.sg",
-//												"xd4rker.blogspot.sg",};
 	private HashSet<String> whiteListDomains;
 	
 	/**
@@ -110,21 +75,6 @@ public class UrlFilter {
 		} catch (URISyntaxException e) {
 			return true;
 		}
-	}
-	
-	/**
-	 * Check if the absolute link contain the filter keywords.
-	 * @param absLink the absolute link to be checked.
-	 * @param keywords the array of keywords
-	 * @return true if the absLink contain the keyword, else false.
-	 */
-	private boolean isInWhiteListDomains(String absLink) {
-		//for (String domain : WHITELIST_DOMAIN) {
-		for (String domain : whiteListDomains) {
-			if (absLink.contains(domain)) 
-				return true;
-		}
-		return false;
 	}
 	
 	/**
