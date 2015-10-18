@@ -153,7 +153,7 @@ public class DatabaseHandler {
         return isInserted;
     }
     
-    public boolean insertToCTFCrawler(String url, String response, String[] tags) {
+    private boolean insertToCTFCrawler(String url, String response, String[] tags) {
         boolean isInserted = false;
         
         try {
@@ -191,7 +191,7 @@ public class DatabaseHandler {
         return isDeleted;
     }
     
-    public boolean deleteFromCTFCrawler(String url, String response, String[] tags) {
+    private boolean deleteFromCTFCrawler(String url, String response, String[] tags) {
         boolean isDeleted = false;
 
         try {
