@@ -1,4 +1,6 @@
-
+/*
+ * Simple model for a CtfCrawlEntry to be used to insert into DB, or print into text file.
+ */
 public class CtfCrawlEntry {
     private String url = "";
     private String response = "";

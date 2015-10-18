@@ -13,6 +13,8 @@ import java.util.logging.Logger;
  * - Ensure that Postgres server is installed and running on machine
  * - Ensure that there is a database named: ctfcrawler
  * - Ensure that there is a postgres user/password: ctfcrawler/ctfcrawler 
+ * 
+ * Currently supported operations: Insert/Delete CtfCrawlEntry objects
  */
 public class DatabaseHandler {
 
