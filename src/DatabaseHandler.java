@@ -37,7 +37,6 @@ public class DatabaseHandler {
         ResultSet rs = null;
 
         try {
-            Class.forName("org.postgresql.Driver");
             con = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
             st = con.createStatement();
             rs = st.executeQuery("SELECT VERSION()");
@@ -50,8 +49,6 @@ public class DatabaseHandler {
         } catch (SQLException ex) {
             Logger lgr = Logger.getLogger(DatabaseHandler.class.getName());
             lgr.log(Level.SEVERE, ex.getMessage(), ex);
-        } catch (ClassNotFoundException ex) {
-            System.out.println("Class not found.");
         } finally {
             try {
                 if (rs != null) {
@@ -78,7 +75,6 @@ public class DatabaseHandler {
 
         try {
             System.out.println("Connecting to Database...");
-            Class.forName("org.postgresql.Driver");
             dbCon = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
             st = dbCon.createStatement();
             rs = st.executeQuery("SELECT VERSION()");
@@ -90,8 +86,6 @@ public class DatabaseHandler {
         } catch (SQLException ex) {
             Logger lgr = Logger.getLogger(DatabaseHandler.class.getName());
             lgr.log(Level.SEVERE, ex.getMessage(), ex);
-        } catch (ClassNotFoundException ex) {
-            System.out.println("Class not found.");
         } finally {
             try {
                 if (rs != null) {
