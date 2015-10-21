@@ -11,7 +11,8 @@
     <property name="source" value="1.7"/>
     <path id="CS3103_WebCrawler.classpath">
         <pathelement location="bin"/>
-        <pathelement location="../../git/ctf-writeup-crawler/lib/jsoup-1.8.3.jar"/>
+        <pathelement location="lib/jsoup-1.8.3.jar"/>
+	<pathelement location="lib/postgresql-9.4-1204.jdbc4.jar"/>
     </path>
     <target name="init">
         <mkdir dir="bin"/>
