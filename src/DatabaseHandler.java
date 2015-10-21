@@ -12,8 +12,8 @@ import java.util.logging.Logger;
  * Please ensure the following is configured on the machine before running this.
  * - Ensure that Postgres server is installed and running on machine
  * - Ensure that there is a database named: ctfcrawler
- * - Ensure that there is a postgres user/password: ctfcrawler/ctfcrawler 
- * 
+ * - Ensure that there is a postgres user/password: ctfcrawler/ctfcrawler
+ *
  * Currently supported operations: Insert/Delete CtfCrawlEntry objects
  */
 public class DatabaseHandler {
@@ -21,22 +21,23 @@ public class DatabaseHandler {
     private static final String dbUrl = "jdbc:postgresql://localhost/ctfcrawler";
     private static final String dbUser = "ctfcrawler";
     private static final String dbPassword = "ctfcrawler";
-    
+
     private Connection dbCon = null;
-    
+
     public DatabaseHandler() {
         connectDatabase();
         createDatabaseStructureIfRequired();
         verifyDatabaseStructure();
     }
-    
+
     public static boolean isDatabaseAlive() {
         boolean isAlive = false;
         Connection con = null;
         Statement st = null;
         ResultSet rs = null;
-        
+
         try {
+            Class.forName("org.postgresql.Driver");
             con = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
             st = con.createStatement();
             rs = st.executeQuery("SELECT VERSION()");
@@ -44,11 +45,13 @@ public class DatabaseHandler {
             if (rs.next()) {
                 System.out.println("Database is up and alive.");
             }
-            
+
             isAlive = true;
         } catch (SQLException ex) {
             Logger lgr = Logger.getLogger(DatabaseHandler.class.getName());
             lgr.log(Level.SEVERE, ex.getMessage(), ex);
+        } catch (ClassNotFoundException ex) {
+            System.out.println("Class not found.");
         } finally {
             try {
                 if (rs != null) {
@@ -65,16 +68,17 @@ public class DatabaseHandler {
                 lgr.log(Level.WARNING, ex.getMessage(), ex);
             }
         }
-        
+
         return isAlive;
     }
-    
+
     private void connectDatabase() {
         Statement st = null;
         ResultSet rs = null;
-        
+
         try {
             System.out.println("Connecting to Database...");
+            Class.forName("org.postgresql.Driver");
             dbCon = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
             st = dbCon.createStatement();
             rs = st.executeQuery("SELECT VERSION()");
@@ -86,6 +90,8 @@ public class DatabaseHandler {
         } catch (SQLException ex) {
             Logger lgr = Logger.getLogger(DatabaseHandler.class.getName());
             lgr.log(Level.SEVERE, ex.getMessage(), ex);
+        } catch (ClassNotFoundException ex) {
+            System.out.println("Class not found.");
         } finally {
             try {
                 if (rs != null) {
@@ -100,7 +106,7 @@ public class DatabaseHandler {
             }
         }
     }
-    
+
     private void createDatabaseStructureIfRequired() {
         try {
             if (dbCon == null || dbCon.isClosed()) {
@@ -110,17 +116,17 @@ public class DatabaseHandler {
         } catch (SQLException e1) {
             e1.printStackTrace();
         }
-        
+
         try {
             Statement stmt = dbCon.createStatement();
             String sql =    "CREATE TABLE IF NOT EXISTS CTFWRITEUPS " +
                             "(ID            BIGSERIAL  PRIMARY KEY  NOT NULL," +
-                            "URL            TEXT                    NOT NULL," + 
+                            "URL            TEXT                    NOT NULL," +
                             "RESPONSETIME   TEXT                    NOT NULL," +
                             "CATEGORIES     TEXT[]                          )";
             int rowsUpdated = stmt.executeUpdate(sql);
             stmt.close();
-            
+
             if (rowsUpdated > 0) {
                 System.out.println("Successfully created table CTFWRITEUPS.");
             }
@@ -128,19 +134,19 @@ public class DatabaseHandler {
             e.printStackTrace();
         }
     }
-    
+
     private boolean verifyDatabaseStructure() {
         CtfCrawlEntry testEntry = generateTestCrawlEntry();
         boolean isSuccess = insertToCTFCrawler(testEntry);
         isSuccess = isSuccess && deleteFromCTFCrawler(testEntry);
-        
-        if (isSuccess) { 
+
+        if (isSuccess) {
             System.out.println("Database Structure is verified.");
         }
-        
+
         return isSuccess;
     }
-    
+
     private CtfCrawlEntry generateTestCrawlEntry() {
         String url = "TEST://ctftime.org";
         String response = "999999999ms";
@@ -148,16 +154,16 @@ public class DatabaseHandler {
         CtfCrawlEntry testEntry = new CtfCrawlEntry(url, response, tags);
         return testEntry;
     }
-    
+
     public boolean insertToCTFCrawler(CtfCrawlEntry entry) {
         boolean isInserted = false;
         isInserted = insertToCTFCrawler(entry.getUrl(), entry.getResponse(), entry.getTags());
         return isInserted;
     }
-    
+
     private boolean insertToCTFCrawler(String url, String response, String[] tags) {
         boolean isInserted = false;
-        
+
         try {
             if (dbCon == null || dbCon.isClosed()) {
                 System.out.println("Database connection not found, or is closed");
@@ -166,9 +172,9 @@ public class DatabaseHandler {
         } catch (SQLException e1) {
             e1.printStackTrace();
         }
-        
+
         try {
-            String sql =    "INSERT INTO CTFWRITEUPS (URL,RESPONSETIME,CATEGORIES) " + 
+            String sql =    "INSERT INTO CTFWRITEUPS (URL,RESPONSETIME,CATEGORIES) " +
                             "VALUES (?,?,?)";
             PreparedStatement statement = dbCon.prepareStatement(sql);
             int index = 1;
@@ -177,22 +183,22 @@ public class DatabaseHandler {
             statement.setArray(index++, dbCon.createArrayOf("text", tags));
             int rowsUpdated = statement.executeUpdate();
 
-            System.out.println("Rows updated from INSERT statement: " + rowsUpdated);             
+            System.out.println("Rows updated from INSERT statement: " + rowsUpdated);
             isInserted = true;
         } catch (SQLException e) {
             isInserted = false;
             e.printStackTrace();
         }
-        
+
         return isInserted;
     }
-    
+
     public boolean deleteFromCTFCrawler(CtfCrawlEntry entry) {
         boolean isDeleted = false;
         isDeleted = deleteFromCTFCrawler(entry.getUrl(), entry.getResponse(), entry.getTags());
         return isDeleted;
     }
-    
+
     private boolean deleteFromCTFCrawler(String url, String response, String[] tags) {
         boolean isDeleted = false;
 
@@ -204,9 +210,9 @@ public class DatabaseHandler {
         } catch (SQLException e1) {
             e1.printStackTrace();
         }
-        
+
         try {
-            String sql =    "DELETE from CTFWRITEUPS " + 
+            String sql =    "DELETE from CTFWRITEUPS " +
                             "WHERE  URL=? AND RESPONSETIME=? AND CATEGORIES=?";
             PreparedStatement statement = dbCon.prepareStatement(sql);
             int index = 1;
@@ -215,17 +221,17 @@ public class DatabaseHandler {
             statement.setArray(index++, dbCon.createArrayOf("text", tags));
             int rowsUpdated = statement.executeUpdate();
 
-            System.out.println("Rows updated from DELETE statement: " + rowsUpdated);             
+            System.out.println("Rows updated from DELETE statement: " + rowsUpdated);
             isDeleted = true;
         } catch (SQLException e) {
             isDeleted = false;
             e.printStackTrace();
         }
-        
+
         return isDeleted;
     }
-    
-    
+
+
     //  Method to test database handler methods
     public static void main(String[] args) {
         DatabaseHandler.isDatabaseAlive();
