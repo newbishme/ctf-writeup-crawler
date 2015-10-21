@@ -18,7 +18,7 @@ import java.util.logging.Logger;
  */
 public class DatabaseHandler {
 
-    private static final String dbUrl = "jdbc:postgresql://localhost/ctfcrawler";
+    private static final String dbUrl = "jdbc:postgresql://localhost:5432/ctfcrawler";
     private static final String dbUser = "ctfcrawler";
     private static final String dbPassword = "ctfcrawler";
 
