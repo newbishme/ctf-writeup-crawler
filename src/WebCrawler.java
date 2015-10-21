@@ -34,7 +34,7 @@ public class WebCrawler implements Runnable {
     private URI uri;
 	private long serverRT; // Server Response Time
 	private Category category;
-	private String categoryTag;
+	private String[] categoryTag;
 	private UrlFilter urlFilter;
 
 	/**
@@ -49,7 +49,7 @@ public class WebCrawler implements Runnable {
 		sock = new Socket();
 		uri = new URI(url);
 		serverRT = 0;
-		categoryTag = "";
+		categoryTag = null;
 		category = Category.getInstance();
 		urlFilter = UrlFilter.getInstance();
 	}

@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -17,7 +18,8 @@ import java.util.concurrent.TimeUnit;
 public class ParallelCrawlerHandler {
 
 	private static final String FILENAME = "writeup_urls.txt";
-	private static final int REQUEST_DELAY = 100;
+	private static final int REQUEST_DELAY = 500;
+	private DatabaseHandler dbHandler;
 	private int maxUrls;
 	private int maxThreads;
 	
@@ -37,6 +39,7 @@ public class ParallelCrawlerHandler {
 	 */
 	public ParallelCrawlerHandler(ArrayList<String> seedUrls, int maxUrls, int maxThreads) throws URISyntaxException {
 		
+		dbHandler = new DatabaseHandler();
 		this.maxUrls = maxUrls;
 		this.maxThreads = maxThreads;
 		ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<Runnable>(maxThreads, true);
@@ -77,7 +80,7 @@ public class ParallelCrawlerHandler {
 		}
 		
 		executorPool.shutdownNow();
-		writeToFile();
+		//writeToFile();
 		System.out.println("crawledUrls: " + crawledUrls.size() + " crawlingUrls: " + crawlingUrls.size());
 	
         while (!executorPool.isTerminated()) {
@@ -94,19 +97,20 @@ public class ParallelCrawlerHandler {
 	 * @param serverRT the server response time.
 	 * @param links the list of URL strings to visit next.
 	 */
-	public synchronized void addCrawledUrls(String crawledLink, long serverRT, ArrayList<String> links, String categoryTag) {
+	public synchronized void addCrawledUrls(String crawledLink, long serverRT, ArrayList<String> links, String[] categoryTag) {
 		if (crawledCounts >= maxUrls) {
 			return;
 		}
 		
 		crawledUrls.add(crawledLink);
 		crawledCounts += 1;
-		if (categoryTag.isEmpty()) {
+		if (categoryTag == null) {
 			//resultUrls.add(crawledLink + " " + serverRT + "ms");
 			System.out.println(crawledCounts + ": " + crawledLink + " " + serverRT + "ms");
 		} else {
-			resultUrls.add(crawledLink + " " + serverRT + "ms " + categoryTag);
-			System.out.println(crawledCounts + ": " + crawledLink + " " + serverRT + "ms " + categoryTag);
+			//resultUrls.add(crawledLink + " " + serverRT + "ms " + Arrays.toString(categoryTag));
+			dbHandler.insertToCTFCrawler(new CtfCrawlEntry(crawledLink, Long.toString(serverRT), categoryTag));
+			System.out.println(crawledCounts + ": " + crawledLink + " " + serverRT + "ms " + Arrays.toString(categoryTag));
 		}
 		
 		addToCrawlingUrls(links);

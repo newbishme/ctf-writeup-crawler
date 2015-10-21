@@ -1,4 +1,5 @@
 import java.util.HashSet;
+
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -41,8 +42,9 @@ public class Category {
 	 * @param doc the parsed html document using Jsoup.
 	 * @return the string containing the category tags.
 	 */
-	public String getTags(Document doc) {
+	public String[] getTags(Document doc) {
 		HashSet<String> tags = new HashSet<String>();
+		
 		String text;
 		Elements elements = doc.select("title,h1,h2,h3");
 		for (Element element : elements) {
@@ -54,9 +56,9 @@ public class Category {
 			}
 		}
 		if (tags.isEmpty()) {
-			return "";
+			return null;
 		} else {
-			return tags.toString();
+			return tags.toArray(new String[tags.size()]);
 		}
 		
 	}
