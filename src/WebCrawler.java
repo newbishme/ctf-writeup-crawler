@@ -1,13 +1,17 @@
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.ConnectException;
+import java.net.MalformedURLException;
 import java.net.PortUnreachableException;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
 
 import javax.net.ssl.*;
 
@@ -18,6 +22,13 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.xml.sax.InputSource;
+
+import com.sun.syndication.feed.synd.SyndEntry;
+import com.sun.syndication.feed.synd.SyndFeed;
+import com.sun.syndication.io.FeedException;
+import com.sun.syndication.io.SyndFeedInput;
+import com.sun.syndication.io.XmlReader;
 
 
 /**
@@ -27,6 +38,10 @@ import org.jsoup.select.Elements;
  * This class use Jsoup library for html parsing.
  */
 public class WebCrawler implements Runnable {
+	public static String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36";
+	public static String FEED_TYPE_RSS = "application/rss+xml";
+	public static String FEED_TYPE_ATOM = "application/rss+xml";
+	public static String FEED_TYPE_RSS1 = "application/rdf+xml";
 	
 	private ParallelCrawlerHandler parallelCrawlerHandler;
     private Socket sock;
@@ -104,6 +119,7 @@ public class WebCrawler implements Runnable {
 		//Get Request
 		dos.writeBytes("GET " + path + " HTTP/1.1\r\n");
 		dos.writeBytes("Host: " + host + "\r\n");
+		dos.writeBytes("User-Agent: " + USER_AGENT + "\r\n");
 		dos.writeBytes("Connection: close\r\n\r\n");
 
 		//Request end time
@@ -155,6 +171,17 @@ public class WebCrawler implements Runnable {
 		return -1;
 	}
 	
+	private String verifyAbsLink(Element link) {
+		String absLink = link.attr("abs:href");
+		
+		//href is root-relative link
+		if (absLink == ""){ 
+			absLink = uri.getScheme()+ "://" + uri.getAuthority() + link.attr("href");
+		}
+		
+		return absLink;
+	}
+	
 	/**
 	 * Get the absolute links from the give html String.
 	 * @param html the html received from the GET Request.
@@ -167,12 +194,7 @@ public class WebCrawler implements Runnable {
 		Document doc = Jsoup.parse(html);
 		Elements links = doc.select("a[href]");
 		for (Element link : links) {
-			absLink = link.attr("abs:href");
-			
-			//href is root-relative link
-			if (absLink == ""){ 
-				absLink = uri.getScheme()+ "://" + uri.getAuthority() + link.attr("href");
-			}
+			absLink = verifyAbsLink(link);
 			
 			if (!urlFilter.shouldFilterOff(absLink)) {
 				absLinks.add(absLink);
@@ -180,6 +202,54 @@ public class WebCrawler implements Runnable {
         }
 		categoryTag = category.getTags(doc);
 		return absLinks;
+	}
+	
+	public static String getRssLink(Document doc) {
+		/**
+		 * Gets a HTML document from the specified web address
+		 * and searches for the MIME types that specify RSS/Atom feeds.
+		 * Returns a String representing the URL of the first valid feed found.
+		 * Returns null if there is no feed found
+		 * @param the string representing the target website
+		 */
+		String result = null;
+		// gets the first valid link of a matching MIME type
+		ArrayList<String> mimeTypes = new ArrayList<String>();
+		mimeTypes.add(FEED_TYPE_RSS);
+		mimeTypes.add(FEED_TYPE_ATOM);
+		mimeTypes.add(FEED_TYPE_RSS1);
+		Iterator<String> mimeIter = mimeTypes.iterator();
+		while(mimeIter.hasNext() && result == null) {
+			Elements rssElements = doc.getElementsByAttributeValue("type", mimeIter.next());
+			if(rssElements.size() > 0) {
+				result = rssElements.get(0).attr("href"); // loop will break
+			}
+		}
+		return result;
+	}
+	
+	public ArrayList<String> getLinksFromRSS(String rssFeed) {
+		ArrayList<String> result = new ArrayList<String>();
+
+		try {
+			URI rssuri = new URI(rssFeed);
+			sendGetRequest(rssuri.getHost(), rssuri.getPath());
+			String html = recvGetResponse();
+			InputStream is = new ByteArrayInputStream(html.getBytes());
+			
+			SyndFeedInput input = new SyndFeedInput();
+			SyndFeed feed;
+			feed = input.build(new XmlReader(is));
+			List<SyndEntry> entries = feed.getEntries();
+			for (SyndEntry ent : entries) {
+				result.add(ent.getLink());
+			}
+		} catch (IllegalArgumentException | FeedException | IOException | URISyntaxException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return result;
 	}
 	
 	/**
