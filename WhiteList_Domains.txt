@@ -56,7 +56,6 @@ ipushino.blogspot.sg
 blog.frizn.fr
 blog.0ops.net
 kitctf.de
-u.osu.edu
 dook.biz
 blog.dragonsector.pl
 usedoils.net
