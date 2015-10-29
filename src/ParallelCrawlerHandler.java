@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 public class ParallelCrawlerHandler {
 
 	private static final String FILENAME = "writeup_urls.txt";
-	private static final int REQUEST_DELAY = 500;
+	private static final int REQUEST_DELAY = 200;
 	private DatabaseHandler dbHandler;
 	private int maxUrls;
 	private int maxThreads;
@@ -105,7 +105,6 @@ public class ParallelCrawlerHandler {
 		crawledUrls.add(crawledLink);
 		crawledCounts += 1;
 		if (categoryTag == null) {
-			//resultUrls.add(crawledLink + " " + serverRT + "ms");
 			System.out.println(crawledCounts + ": " + crawledLink + " " + serverRT + "ms");
 		} else {
 			//resultUrls.add(crawledLink + " " + serverRT + "ms " + Arrays.toString(categoryTag));
@@ -121,6 +120,9 @@ public class ParallelCrawlerHandler {
 	 * @param urlList The list of URLs of Strings type.
 	 */
 	private void addToCrawlingUrls(ArrayList<String> urlList) {
+		if (urlList == null) {
+			return;
+		}
 		for (String url : urlList) {
 			if (!crawledUrls.contains(url)) {
 				crawlingUrls.add(url);

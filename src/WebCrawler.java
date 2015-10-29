@@ -265,19 +265,15 @@ public class WebCrawler implements Runnable {
 		try {
 			links = crawl();
 		} catch (ConnectException e) {
-			return;
+			parallelCrawlerHandler.addCrawledUrls(url, -1, null, null);
 		} catch (URISyntaxException e) {
-			e.printStackTrace();
-			return;
+			parallelCrawlerHandler.addCrawledUrls(url, -1, null, null);
 		} catch (UnknownHostException e) {
-			e.printStackTrace();
-			return;
+			parallelCrawlerHandler.addCrawledUrls(url, -1, null, null);
 		} catch (PortUnreachableException e) {
-			e.printStackTrace();
-			return;
+			parallelCrawlerHandler.addCrawledUrls(url, -1, null, null);
 		} catch (IOException e) {
-			e.printStackTrace();
-			return;
+			parallelCrawlerHandler.addCrawledUrls(url, -1, null, null);
 		}
 		
 		if (links != null) {
