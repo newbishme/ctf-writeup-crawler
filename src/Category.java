@@ -16,8 +16,9 @@ public class Category {
 	
 	// Maybe further group words into a single tag, e.g crypto: "crypto, cryptography, cipher"
 	private final String[] CATEGORY_LIST = {"defensive", "offensive", "analysis", "analyze", "forensic", "injection", "binary", 
-												"reversing", "reverse", "exploit", "crypto", "cryptography", "cipher",
-												"misc", "programming", "shell", "stego", "stegography"};
+												"reversing", "reverse", "reverse engineering", "exploit", "exploitation", "crypto", 
+												"cryptography", "cipher", "recon", "reconnaisse", "misc", "programming", "shell", 
+												"stego", "stegography", "malware", "xss"};
 	
 	/**
 	 * Provides reference of the Category singleton if it exists, or returns it after creating it
