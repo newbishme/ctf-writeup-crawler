@@ -25,6 +25,7 @@ public class DatabaseFrontend {
             showAllOptions();
             String input = readUserInput();
             processUserInput(input);
+            enterAnythingToContinue();
         }
     }
     
@@ -103,5 +104,10 @@ public class DatabaseFrontend {
         
         System.out.println("FINISH PROCESSING USER INPUT.");
         System.out.println("");
+    }
+    
+    private void enterAnythingToContinue() {
+        System.out.println("Enter anything to continue...");
+        sc.nextLine();
     }
 }
