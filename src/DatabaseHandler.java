@@ -290,10 +290,10 @@ public class DatabaseHandler {
     private void handleDomainSearch(String domainUrl) {
         try {
             String sql =    "SELECT * from CTFWRITEUPS " +
-                            "WHERE  URL=?";
+                            "WHERE  URL like ?";
             PreparedStatement statement = dbCon.prepareStatement(sql);
             int index = 1;
-            statement.setString(index++, domainUrl);
+            statement.setString(index++, "%" + domainUrl + "%");
             ResultSet rs = statement.executeQuery();
             
             int i = 1;
