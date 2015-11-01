@@ -237,8 +237,8 @@ public class DatabaseHandler {
             PreparedStatement statement = dbCon.prepareStatement(sql);
             ResultSet rs = statement.executeQuery();
             
-            int i = 1;
             while (rs.next()) {
+                int i = 1;
                 int id = rs.getInt(i++);
                 String url = rs.getString(i++);
                 String responsetime = rs.getString(i++);
@@ -262,8 +262,8 @@ public class DatabaseHandler {
             ResultSet rs = statement.executeQuery();
             HashSet<String> allCategories = new HashSet<String>();
             
-            int i = 1;
             while (rs.next()) {
+                int i = 1;
                 int id = rs.getInt(i++);
                 String url = rs.getString(i++);
                 String responsetime = rs.getString(i++);
@@ -331,8 +331,8 @@ public class DatabaseHandler {
             statement.setString(index++, "%" + domainUrl + "%");
             ResultSet rs = statement.executeQuery();
             
-            int i = 1;
             while (rs.next()) {
+                int i = 1;
                 int id = rs.getInt(i++);
                 String url = rs.getString(i++);
                 String responsetime = rs.getString(i++);
@@ -360,8 +360,8 @@ public class DatabaseHandler {
             PreparedStatement statement = dbCon.prepareStatement(sql);
             ResultSet rs = statement.executeQuery();
             
-            int i = 1;
             while (rs.next()) {
+                int i = 1;
                 int id = rs.getInt(i++);
                 String url = rs.getString(i++);
                 String responsetime = rs.getString(i++);
