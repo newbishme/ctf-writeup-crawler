@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -246,6 +248,39 @@ public class DatabaseHandler {
             }
             
             rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void showAllCategories() {
+        try {
+            String sql = "SELECT * from CTFWRITEUPS;";
+            PreparedStatement statement = dbCon.prepareStatement(sql);
+            ResultSet rs = statement.executeQuery();
+            HashSet<String> allCategories = new HashSet<String>();
+            
+            int i = 1;
+            while (rs.next()) {
+                int id = rs.getInt(i++);
+                String url = rs.getString(i++);
+                String responsetime = rs.getString(i++);
+                Array arr = rs.getArray(i++);
+                String[] categories = (String[]) arr.getArray();
+                
+                for (String category : categories) {
+                    allCategories.add(category);
+                }
+            }
+            rs.close();
+            
+            Iterator<String> itr = allCategories.iterator();
+            while (itr.hasNext()) {
+                System.out.println(itr.next());
+            }
+            
         } catch (SQLException e) {
             e.printStackTrace();
         } catch (Exception e) {

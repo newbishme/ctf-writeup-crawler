@@ -32,9 +32,10 @@ public class DatabaseFrontend {
         System.out.println("====================================");
         System.out.println("Select an option:");
         System.out.println("1. Show all entries in the database.");
-        System.out.println("2. Show all entries filtered by domain name.");
-        System.out.println("3. Show all entries filtered by a category.");
-        System.out.println("4. Exit");
+        System.out.println("2. Show all categories in the database.");
+        System.out.println("3. Show all entries filtered by domain name.");
+        System.out.println("4. Show all entries filtered by a category.");
+        System.out.println("5. Exit");
         System.out.println("====================================");
     }
     
@@ -50,6 +51,7 @@ public class DatabaseFrontend {
             case "2":
             case "3":
             case "4":
+            case "5":
                 willRun = false;
                 break;
             default:
@@ -69,6 +71,10 @@ public class DatabaseFrontend {
             dbHandler.showAllEntries();
             break;
         case "2":
+            System.out.println("Displaying all categories in database.");
+            dbHandler.showAllCategories();
+            break;
+        case "3":
             while ("".equals(newInput) || newInput == null) {
                 System.out.println("Enter the domain name to search for.");
                 newInput = sc.nextLine();
@@ -76,7 +82,7 @@ public class DatabaseFrontend {
             
             dbHandler.showEntriesWithDomainName(newInput);
             break;
-        case "3":
+        case "4":
             while ("".equals(newInput) || newInput == null) {
                 System.out.println("Enter a category to search for.");
                 newInput = sc.nextLine();
@@ -84,7 +90,7 @@ public class DatabaseFrontend {
             
             dbHandler.showEntriesWithCategory(newInput);
             break;
-        case "4":
+        case "5":
             sc.close();
             System.out.println("Program ending.");
             System.exit(0);
