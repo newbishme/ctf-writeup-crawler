@@ -57,7 +57,6 @@ blog.frizn.fr
 blog.0ops.net
 kitctf.de
 dook.biz
-blog.dragonsector.pl
 usedoils.net
 hackucf.org
 singularityctf.blogspot.sg
