@@ -63,4 +63,30 @@ public class Category {
 		}
 		
 	}
+	
+	/**
+	 * Get the category tags fitted with the given html document from ctftimes.org
+	 * @param doc the parsed html document using Jsoup.
+	 * @return the string containing the category tags.
+	 */
+	public String[] getTagsFromCtfTimes(Document doc) {
+		HashSet<String> tags = new HashSet<String>();
+		
+		String text;
+		Elements elements = doc.select("h2,span");
+		for (Element element : elements) {
+			text = element.text().toLowerCase();
+			for (String category : CATEGORY_LIST) {
+				if (text.contains(category)) {
+					tags.add(category);
+				}
+			}
+		}
+		if (tags.isEmpty()) {
+			return null;
+		} else {
+			return tags.toArray(new String[tags.size()]);
+		}
+		
+	}
 }

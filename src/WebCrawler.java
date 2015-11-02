@@ -200,7 +200,12 @@ public class WebCrawler implements Runnable {
 				absLinks.add(absLink);
 			}
         }
-		categoryTag = category.getTags(doc);
+		if (url.contains("ctftime.org")) {
+			categoryTag = category.getTagsFromCtfTimes(doc);
+		} else {
+			categoryTag = category.getTags(doc);
+		}
+		
 		return absLinks;
 	}
 	
