@@ -387,7 +387,7 @@ public class DatabaseHandler {
         if (url == null || response == null || categories == null) {
             return;
         }
-        System.out.println("--------Entry: " + id + "--------");
+        System.out.println("\t\tEntry: " + id);
         System.out.println("URL: " + url);
         System.out.println("Categories: " + Arrays.toString(categories));
         System.out.println("Response time: " + response);
