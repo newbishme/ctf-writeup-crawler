@@ -1,3 +1,6 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.HashSet;
 
 import org.jsoup.nodes.Document;
@@ -13,12 +16,10 @@ import org.jsoup.select.Elements;
 public class Category {
 		
 	private static Category singletonInstance = null;
+	private static final String CATEGORIES_FILENAME = "Categories.txt";
 	
 	// Maybe further group words into a single tag, e.g crypto: "crypto, cryptography, cipher"
-	private final String[] CATEGORY_LIST = {"defensive", "offensive", "analysis", "analyze", "forensic", "injection", "binary", 
-												"reversing", "reverse", "reverse engineering", "exploit", "exploitation", "crypto", 
-												"cryptography", "cipher", "recon", "reconnaisse", "misc", "programming", "shell", 
-												"stego", "stegography", "malware", "xss"};
+	private HashSet<String> categories;
 	
 	/**
 	 * Provides reference of the Category singleton if it exists, or returns it after creating it
@@ -35,7 +36,8 @@ public class Category {
 	 * A private constructor to enable Singleton Pattern
 	 */
 	private Category() {
-		
+		categories = new HashSet<String>();
+		initializeCategories();
 	}
 	
 	/**
@@ -50,7 +52,7 @@ public class Category {
 		Elements elements = doc.select("title,h1,h2,h3");
 		for (Element element : elements) {
 			text = element.text().toLowerCase();
-			for (String category : CATEGORY_LIST) {
+			for (String category : categories) {
 				if (text.contains(category)) {
 					tags.add(category);
 				}
@@ -76,7 +78,7 @@ public class Category {
 		Elements elements = doc.select("h2,span");
 		for (Element element : elements) {
 			text = element.text().toLowerCase();
-			for (String category : CATEGORY_LIST) {
+			for (String category : categories) {
 				if (text.contains(category)) {
 					tags.add(category);
 				}
@@ -88,5 +90,23 @@ public class Category {
 			return tags.toArray(new String[tags.size()]);
 		}
 		
+	}
+	
+	/**
+	 * Read and add lines from file to Categories hashset
+	 */
+	private void initializeCategories(){
+		try {
+			BufferedReader br = new BufferedReader(new FileReader(CATEGORIES_FILENAME));
+		    String line = br.readLine();
+
+		    while (line != null) {
+		    	categories.add(line);
+		        line = br.readLine();
+		    }
+		    br.close();
+		} catch (IOException e) {
+		   
+		}
 	}
 }

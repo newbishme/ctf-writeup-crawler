@@ -1,0 +1,24 @@
+defensive
+offensive
+analysis
+analyze
+forensic
+injection
+binary
+reversing
+reverse
+reverse engineering
+exploit
+exploitation
+crypto
+cryptography
+cipher
+recon
+reconnaisse
+misc
+programming
+shell
+stego
+stegography
+malware
+xss
