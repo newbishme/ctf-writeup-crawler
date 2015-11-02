@@ -175,12 +175,18 @@ public class DatabaseHandler {
 
         try {
             String sql =    "INSERT INTO CTFWRITEUPS (URL,RESPONSETIME,CATEGORIES) " +
-                            "VALUES (?,?,?)";
+//                            "VALUES (?,?,?)";
+                            "SElECT ?, ?, ?" +
+                            "WHERE" +
+                            "   NOT EXISTS (" +
+                            "       SELECT url FROM CTFWRITEUPS WHERE url = ?" +
+                            ");";
             PreparedStatement statement = dbCon.prepareStatement(sql);
             int index = 1;
             statement.setString(index++, url);
             statement.setString(index++, response);
             statement.setArray(index++, dbCon.createArrayOf("text", tags));
+            statement.setString(index++, url);
             int rowsUpdated = statement.executeUpdate();
 
             System.out.println("Rows updated from INSERT statement: " + rowsUpdated);
