@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 public class ParallelCrawlerHandler {
 
 	private static final String FILENAME = "writeup_urls.txt";
-	private static final int REQUEST_DELAY = 200;
+	private static final int REQUEST_DELAY = 500;
 	private DatabaseHandler dbHandler;
 	private int maxUrls;
 	private int maxThreads;

@@ -22,6 +22,9 @@ public class WebCrawlerDriver {
 		seedUrls.add("https://0x90r00t.com");
 		seedUrls.add("http://blog.squareroots.de/en/");
 		seedUrls.add("http://0xecute.com/");
+		seedUrls.add("http://whitehatters.academy/");
+		seedUrls.add("http://capturetheswag.blogspot.com.au/");
+		seedUrls.add("http://ctf-for-beginners.blogspot.sg/");
 		
 		while (true) {
 			try {
