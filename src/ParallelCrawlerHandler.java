@@ -18,9 +18,9 @@ import java.util.concurrent.TimeUnit;
 public class ParallelCrawlerHandler {
 
 	private static final String FILENAME = "writeup_urls.txt";
-	private static final String CATEGORIES_FILENAME = "Categories.txt";
-	private static final String WHITELIST_DOMAINS_FILENAME = "WhiteList_Domains.txt";
-	private static final int REQUEST_DELAY = 100;
+	private static final String POTENTIAL_CATEGORIES_FILENAME = "Potential_Categories.txt";
+	private static final String POTENTIAL_WHITELIST_DOMAINS_FILENAME = "Potential_WhiteList_Domains.txt";
+	private static final int REQUEST_DELAY = 200;
 	private DatabaseHandler dbHandler;
 	private int maxUrls;
 	private int maxThreads;
@@ -53,33 +53,17 @@ public class ParallelCrawlerHandler {
 	}
 	
 	/**
-	 * Begin the parallel updater. Domains added to WhiteList_domains.txt. Categories added to Categories.txt
-	 * @throws UnknownHostException
-	 * @throws IOException
+	 * Constructor for ParallelCrawlerHandler
+	 * @param maxThreads The maximum number of threads (WebCrawlers) at any point of time.
 	 * @throws URISyntaxException
 	 */
-	public void beginUpdateWhiteListAndCategories() throws UnknownHostException, IOException, URISyntaxException {
-		for (int i = 0; i < 2500; i++) {
-			try {
-				Thread.sleep(REQUEST_DELAY);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			executorPool.execute(new Updater(this, "https://ctftime.org/writeup/"+i));
-		}
-		while (executorPool.getActiveCount() > 0) {
-			// do nothing and wait
-		}
+	public ParallelCrawlerHandler(int maxThreads) throws URISyntaxException {
 		
-		ArrayList<String> domains = new ArrayList<String>();
-		domains.addAll(domainsList);
-		writeToFile(WHITELIST_DOMAINS_FILENAME, domains);
-		ArrayList<String> categories = new ArrayList<String>();
-		categories.addAll(categoriesList);
-		writeToFile(CATEGORIES_FILENAME, categories);
-		System.out.println("WhiteList_domains.txt and Catergories.txt has been udpated");
+		this.maxThreads = maxThreads;
+		ArrayBlockingQueue<Runnable> workQueue = new ArrayBlockingQueue<Runnable>(maxThreads, true);
+		this.executorPool = new ThreadPoolExecutor(maxThreads, maxThreads, Long.MAX_VALUE, TimeUnit.SECONDS, workQueue);
 	}
-	
+		
 	/**
 	 * Begin the parallel crawler. All crawled links will be written to a file.
 	 * @throws UnknownHostException
@@ -116,13 +100,47 @@ public class ParallelCrawlerHandler {
         while (!executorPool.isTerminated()) {
 			// do nothing and wait
 		}
-		if (executorPool.isTerminated()) {
-			System.out.println("All Web crawlers has terminated.");
-			System.out.println("crawledUrls: " + crawledUrls.size() + " crawlingUrls: " + crawlingUrls.size());
-			writeToFile(FILENAME, resultUrls);
-		}
+        
+		System.out.println("All Web crawlers has terminated.");
+		//System.out.println("crawledUrls: " + crawledUrls.size() + " crawlingUrls: " + crawlingUrls.size());
+		writeToFile(FILENAME, resultUrls);
 	}	
 
+	/**
+	 * Begin the parallel updater. Domains added to WhiteList_domains.txt. Categories added to Categories.txt
+	 * @throws UnknownHostException
+	 * @throws IOException
+	 * @throws URISyntaxException
+	 */
+	public void beginUpdateWhiteListAndCategories() throws UnknownHostException, IOException, URISyntaxException {	
+		for (int i = 0; i < 2500; i++) {
+			try {
+				Thread.sleep(REQUEST_DELAY);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			executorPool.execute(new Updater(this, "https://ctftime.org/writeup/"+i));
+		}
+		
+		executorPool.shutdownNow();
+		
+        while (!executorPool.isTerminated()) {
+			// do nothing and wait
+		}
+
+		domainsList.removeAll(UrlFilter.getInstance().getWhiteListDomains());
+		ArrayList<String> domains = new ArrayList<String>();
+		domains.addAll(domainsList);
+		writeToFile(POTENTIAL_WHITELIST_DOMAINS_FILENAME, domains);
+		System.out.println("New potential whitelist domains can be found in : Potential_WhiteList_domains.txt");
+		
+		categoriesList.removeAll(Category.getInstance().getCategories());
+		ArrayList<String> categories = new ArrayList<String>();
+		categories.addAll(categoriesList);
+		writeToFile(POTENTIAL_CATEGORIES_FILENAME, categories);
+		System.out.println("New potential categories can be found in : Potential_Catergories.txt");
+	}
+	
 	/**
 	 * Callback function used by the WebCrawler to update the crawlingUrls and resultUrls.
 	 * @param crawledLink the link that was visited.

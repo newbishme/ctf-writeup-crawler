@@ -13,8 +13,9 @@ import java.util.concurrent.TimeUnit;
 public class WebCrawlerDriver {
 
 	public static void main(String[] args) {
+		ParallelCrawlerHandler parallelCrawlerHandler;
 		ArrayList<String> seedUrls = new ArrayList<String>();
-		int maxUrls = 5000;
+		int maxUrls = 100000;
 		int maxThreads = 50;
 		
 		seedUrls.add("https://ctftime.org/writeups/");
@@ -28,12 +29,16 @@ public class WebCrawlerDriver {
 		
 		while (true) {
 			try {
-				ParallelCrawlerHandler parallelCrawlerHandler = new ParallelCrawlerHandler(seedUrls, maxUrls, maxThreads);
-				parallelCrawlerHandler.beginUpdateWhiteListAndCategories();
-				System.out.println("Web crawler sleep for 1 minute....");
-				TimeUnit.MINUTES.sleep(1);
+				parallelCrawlerHandler = new ParallelCrawlerHandler(seedUrls, maxUrls, maxThreads);
 				System.out.println("Web crawler is now starting to crawl....");
 				parallelCrawlerHandler.beginCrawl();
+				System.out.println("Web crawler sleep for 1 minute....");
+				TimeUnit.MINUTES.sleep(1);
+				System.out.println("Web crawler is now awake....");
+				parallelCrawlerHandler = new ParallelCrawlerHandler(maxThreads);
+				System.out.println("Web crawler is now starting to crawl for potential new whitelist domains....");
+				System.out.println("Web crawler is now starting to crawl for potential new categories....");
+				parallelCrawlerHandler.beginUpdateWhiteListAndCategories();
 				System.out.println("Web crawler sleep for 1 hour....");
 				TimeUnit.HOURS.sleep(1);
 				System.out.println("Web crawler is now awake....");

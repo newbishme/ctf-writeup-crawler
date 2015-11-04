@@ -92,6 +92,14 @@ public class UrlFilter {
 	}
 	
 	/**
+	 * Get the whitelist domains from the HashSet
+	 * @return the whiteListDomains hashset.
+	 */
+	public HashSet<String> getWhiteListDomains() {
+		return whiteListDomains;
+	}
+	
+	/**
 	 * Read and add lines from file to whiteListDomains hashset
 	 */
 	private void initializeWhiteListDomains(){

@@ -19,7 +19,12 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-
+/**
+ * 
+ * This Updater class will search for potential whitelist domains and categories from ctftime.org
+ * Current implementation only find whitelist domains from html elements: <div><a href=...>
+ * Current implementation only find categories from html elements: <span class="label label-info">
+ */
 public class Updater implements Runnable {
 	
 	private ParallelCrawlerHandler parallelCrawlerHandler;
@@ -158,8 +163,8 @@ public class Updater implements Runnable {
 	}
 	
 	/**
-	 * Thread entry point. The thread will crawl given url and obtain 
-	 * new whitelist domain and new categories.
+	 * Thread entry point. The thread will crawl given url and 
+	 * obtain potential whitelist domain and categories.
 	 */
 	@Override
 	public void run() {

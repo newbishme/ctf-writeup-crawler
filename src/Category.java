@@ -10,7 +10,7 @@ import org.jsoup.select.Elements;
 /**
  * 
  * This Category class will parse the given html and tag the url with the category that fit well with it.
- * Current implmentation only analyze the following html elements: title,h1,h2,h3 
+ * Current implementation only analyze the following html elements: title,h1,h2,h3 
  * This class uses singleton pattern as only one object is needed throughout the crawling process 
  */
 public class Category {
@@ -90,6 +90,14 @@ public class Category {
 			return tags.toArray(new String[tags.size()]);
 		}
 		
+	}
+	
+	/**
+	 * Get the categories from the HashSet
+	 * @return the categories hashset.
+	 */
+	public HashSet<String> getCategories() {
+		return categories;
 	}
 	
 	/**
