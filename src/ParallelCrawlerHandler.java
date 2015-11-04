@@ -103,7 +103,7 @@ public class ParallelCrawlerHandler {
         
 		System.out.println("All Web crawlers has terminated.");
 		//System.out.println("crawledUrls: " + crawledUrls.size() + " crawlingUrls: " + crawlingUrls.size());
-		writeToFile(FILENAME, resultUrls);
+		//writeToFile(FILENAME, resultUrls);
 	}	
 
 	/**
@@ -157,7 +157,7 @@ public class ParallelCrawlerHandler {
 		if (categoryTag == null) {
 			System.out.println(crawledCounts + ": " + crawledLink + " " + serverRT + "ms");
 		} else {
-			resultUrls.add(crawledLink + " " + serverRT + "ms " + Arrays.toString(categoryTag));
+			//resultUrls.add(crawledLink + " " + serverRT + "ms " + Arrays.toString(categoryTag));
 			dbHandler.insertToCTFCrawler(new CtfCrawlEntry(crawledLink, Long.toString(serverRT), categoryTag));
 			System.out.println(crawledCounts + ": " + crawledLink + " " + serverRT + "ms " + Arrays.toString(categoryTag));
 		}

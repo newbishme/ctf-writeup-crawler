@@ -29,7 +29,6 @@ public class Updater implements Runnable {
 	
 	private ParallelCrawlerHandler parallelCrawlerHandler;
     private Socket sock;
-    private String url;
     private URI uri;
 	private HashSet<String> categories;
 	private HashSet<String> domains;
@@ -42,7 +41,6 @@ public class Updater implements Runnable {
 	 */
 	public Updater(ParallelCrawlerHandler parallelCrawlerHandler, String url) throws URISyntaxException {
 		this.parallelCrawlerHandler = parallelCrawlerHandler;
-		this.url = url;
 		sock = new Socket();
 		uri = new URI(url);
 		categories = new HashSet<String>();
