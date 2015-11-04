@@ -1,17 +1,28 @@
-# ctf-writeup-crawler
+ctf-writeup-crawler
+======================
 Crawler for CTF Writeups
 
+http://www.postgresql.org/
 Please ensure the PostgreSQL is installed and running on machine with the following configured
  * Ensure that there is a database named: ctfcrawler
  * Ensure that there is a postgres user/password: ctfcrawler/ctfcrawler
-http://www.postgresql.org/
- 
- The program is developed on Eclipse IDE.
- To run, either import folder to Eclipse and run using Eclipse
- or extract the jar file using "jar xf <jarFile>" and run using "java <classFile>"
 
-"java WebCrawlerDriver" to start the WebCrawler
-"java DatabseFrontend" to perform queries on database
+
+The program is developed on Eclipse IDE.
+To run, either import folder to Eclipse and run using Eclipse
+or extract the jar file using "jar xf <jarFile>" and run using "java <classFile>"
+
+
+WebCrawlerDriver
+----------------
+The driver class to start the WebCrawler
+To run, "java WebCrawlerDriver"
+
+
+DatabaseFrontend
+----------------
+The Database Frontend for queries
+To run, "java DatabseFrontend"
 
 
 WhiteList_Domains.txt
