@@ -15,14 +15,12 @@ or extract the jar file using "jar xf <jarFile>" and run using "java <classFile>
 
 WebCrawlerDriver
 ----------------
-The driver class to start the WebCrawler
-To run, "java WebCrawlerDriver"
+The driver class to start the WebCrawler. To run, "java WebCrawlerDriver"
 
 
 DatabaseFrontend
 ----------------
-The Database Frontend for queries
-To run, "java DatabseFrontend"
+The Database Frontend for queries. To run, "java DatabseFrontend"
 
 
 WhiteList_Domains.txt
