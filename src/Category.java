@@ -7,6 +7,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.sun.org.apache.xml.internal.resolver.helpers.PublicId;
+
 /**
  * 
  * This Category class will parse the given html and tag the url with the category that fit well with it.
@@ -52,11 +54,7 @@ public class Category {
 		Elements elements = doc.select("title,h1,h2,h3");
 		for (Element element : elements) {
 			text = element.text().toLowerCase();
-			for (String category : categories) {
-				if (text.contains(category)) {
-					tags.add(category);
-				}
-			}
+			tags.addAll(getTags(text));
 		}
 		if (tags.isEmpty()) {
 			return null;
@@ -64,6 +62,18 @@ public class Category {
 			return tags.toArray(new String[tags.size()]);
 		}
 		
+	}
+	
+	public HashSet<String> getTags(String text) {
+		HashSet<String> tags = new HashSet<String>();
+		text = text.toLowerCase();
+		for (String category : categories) {
+			if (text.contains(category)) {
+				tags.add(category);
+			}
+		}
+		
+		return tags;
 	}
 	
 	/**

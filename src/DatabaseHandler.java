@@ -198,6 +198,33 @@ public class DatabaseHandler {
 
         return isInserted;
     }
+    
+    public boolean isInserted(String url) {
+        try {
+            if (dbCon == null || dbCon.isClosed()) {
+                System.out.println("Database connection not found, or is closed");
+                connectDatabase();
+            }
+        } catch (SQLException e1) {
+            e1.printStackTrace();
+        }
+
+        try {
+            String sql =    "SELECT 1" +
+                            "FROM CTFWRITEPUS" +
+                            "WHERE URL = ?";
+            PreparedStatement statement = dbCon.prepareStatement(sql);
+            statement.setString(1, url);
+            ResultSet rs = statement.executeQuery();
+            boolean isInserted = rs.next();
+            rs.close();
+            return isInserted;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
 
     public boolean deleteFromCTFCrawler(CtfCrawlEntry entry) {
         boolean isDeleted = false;

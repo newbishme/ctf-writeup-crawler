@@ -39,8 +39,11 @@ public class WebCrawlerDriver {
 				System.out.println("Web crawler is now starting to crawl for potential new whitelist domains....");
 				System.out.println("Web crawler is now starting to crawl for potential new categories....");
 				parallelCrawlerHandler.beginUpdateWhiteListAndCategories();
-				System.out.println("Web crawler sleep for 1 hour....");
+				System.out.println("Crawl complete, fetching residual links from RSS. System will sleep for an hour.");
+				Thread RSSThread = new Thread(new RSSReader(parallelCrawlerHandler.getRSSLinks()));
+				RSSThread.start();
 				TimeUnit.HOURS.sleep(1);
+				if(RSSThread.isAlive()) RSSThread.interrupt();
 				System.out.println("Web crawler is now awake....");
 			} catch (URISyntaxException e) {
 				e.printStackTrace();

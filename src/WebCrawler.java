@@ -1,17 +1,13 @@
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.ConnectException;
-import java.net.MalformedURLException;
 import java.net.PortUnreachableException;
 import java.net.Socket;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.net.URLConnection;
 
 import javax.net.ssl.*;
 
@@ -22,13 +18,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.xml.sax.InputSource;
-
-import com.sun.syndication.feed.synd.SyndEntry;
-import com.sun.syndication.feed.synd.SyndFeed;
-import com.sun.syndication.io.FeedException;
-import com.sun.syndication.io.SyndFeedInput;
-import com.sun.syndication.io.XmlReader;
 
 
 /**
@@ -217,6 +206,8 @@ public class WebCrawler implements Runnable {
 		 * Returns null if there is no feed found
 		 * @param the string representing the target website
 		 */
+		
+		// can make smarter by removing rss links that have a certain keyword
 		String result = null;
 		// gets the first valid link of a matching MIME type
 		ArrayList<String> mimeTypes = new ArrayList<String>();
@@ -230,30 +221,6 @@ public class WebCrawler implements Runnable {
 				result = rssElements.get(0).attr("href"); // loop will break
 			}
 		}
-		return result;
-	}
-	
-	public ArrayList<String> getLinksFromRSS(String rssFeed) {
-		ArrayList<String> result = new ArrayList<String>();
-
-		try {
-			URI rssuri = new URI(rssFeed);
-			sendGetRequest(rssuri.getHost(), rssuri.getPath());
-			String html = recvGetResponse();
-			InputStream is = new ByteArrayInputStream(html.getBytes());
-			
-			SyndFeedInput input = new SyndFeedInput();
-			SyndFeed feed;
-			feed = input.build(new XmlReader(is));
-			List<SyndEntry> entries = feed.getEntries();
-			for (SyndEntry ent : entries) {
-				result.add(ent.getLink());
-			}
-		} catch (IllegalArgumentException | FeedException | IOException | URISyntaxException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
 		return result;
 	}
 	

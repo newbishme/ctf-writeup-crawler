@@ -34,6 +34,8 @@ public class ParallelCrawlerHandler {
 	private HashSet<String> domainsList = new HashSet<String>();
 	private HashSet<String> categoriesList = new HashSet<String>();
 	
+	private HashSet<String> rssLinks = new HashSet<String>();
+	
 	
 	/**
 	 * Constructor for ParallelCrawlerHandler
@@ -166,6 +168,14 @@ public class ParallelCrawlerHandler {
 	}
 	
 	/**
+	 * Callback function used by the WebCrawler to indicate an RSS URL
+	 * @param rssurl the RSS link.
+	 */
+	public synchronized void addRssUrl(String rssUrl) {
+		rssLinks.add(rssUrl);
+	}
+	
+	/**
 	 * Callback function used by the Updater to update the whitelist domains and categories
 	 * @param domains the domains for updating
 	 * @param categories the categories for updating.
@@ -232,6 +242,14 @@ public class ParallelCrawlerHandler {
 			e.printStackTrace();
 			return;
 		}
+	}
+	
+	/**
+	 * Getter for RSS Links
+	 * @return a HashSet<String> containing the RSS links
+	 */
+	public HashSet<String> getRSSLinks() {
+		return rssLinks;
 	}
 	
 }

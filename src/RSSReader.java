@@ -15,13 +15,15 @@ import java.util.List;
 
 import javax.net.ssl.SSLSocketFactory;
 
+import com.sun.syndication.feed.synd.SyndCategory;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedInput;
 import com.sun.syndication.io.XmlReader;
 
-public class RSSReader {
+
+public class RSSReader implements Runnable {
  /**
   * Gets a common set of RSS URLs
   * Checks set of writeup URLs to ensure that link has not been accessed before
@@ -29,22 +31,47 @@ public class RSSReader {
   * only crawls for an hour
   */
 	public static String USER_AGENT = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36";
-	public static String FEED_TYPE_RSS = "application/rss+xml";
-	public static String FEED_TYPE_ATOM = "application/rss+xml";
-	public static String FEED_TYPE_RSS1 = "application/rdf+xml";
 	
-	private String rssLinksFileName;
-	private ArrayList<String> rssLinks;
-	private HashSet<String> rssLinksSet;
-	private HashSet<String> dictionary;
-	
-	public RSSReader(String dictionaryFileName, String rssLinksFileName) {
-		this.rssLinksFileName = rssLinksFileName;
+	private class RSSLink { // just a containter
+		public String url;
+		public Long serverRT;
+		public HashSet<String> categories;
+		public RSSLink(String url, Long serverRT, HashSet<String> cats) {
+			this.url = url;
+			this.serverRT = serverRT;
+			categories = cats;
+		}
 	}
 	
-	public ArrayList<String> getRSSLinks(String url) throws ConnectException, UnknownHostException, IOException, URISyntaxException {
+	private class DB {
+		DatabaseHandler dbHandler;
+		public DB() {
+			dbHandler = new DatabaseHandler();
+		}
+		
+		public void write(RSSLink link) {
+			String[] cats = new String[link.categories.size()];
+			cats = link.categories.toArray(cats);
+			CtfCrawlEntry entry = new CtfCrawlEntry(link.url, Long.toString(link.serverRT), cats); 
+			dbHandler.insertToCTFCrawler(entry);
+		}
+		
+		public boolean isCrawled (String url) {
+			return dbHandler.isInserted(url);
+		}
+	}
+	
+	private HashSet<String> rssLinksSet;
+	private DB database;
+	
+	public RSSReader(HashSet<String> rssLinks) {
+		rssLinksSet = rssLinks;
+		database = new DB();
+	}
+	
+	private ArrayList<RSSLink> getRSSLinks(String url) throws ConnectException, UnknownHostException, IOException, URISyntaxException, IllegalArgumentException, FeedException {
 
-		ArrayList<String> result = new ArrayList<String>();
+		ArrayList<RSSLink> result = new ArrayList<RSSLink>();
 		URI uri = new URI(url);
 		
 		Socket sock = createSocket(uri);
@@ -55,7 +82,9 @@ public class RSSReader {
 		DataOutputStream dos = new DataOutputStream(sock.getOutputStream());
 		dos.writeBytes(getRequest);
 
-		String html = getResponse(sock);
+		String rssxml = getResponse(sock);
+		
+		result = getLinksFromRSS(rssxml);
 		
 		sock.close();
 		return result;
@@ -124,7 +153,7 @@ public class RSSReader {
 		return get.toString();
 	}
 	
-	public ArrayList<String> getLinksFromRSS(String rssFeed) throws IllegalArgumentException, FeedException, IOException {
+	private ArrayList<RSSLink> getLinksFromRSS(String rssFeed) throws IllegalArgumentException, FeedException, IOException {
 		/**
 		 * Gets entries from RSS, and performs the following steps
 		 * 	Checks if the link is already in the DB
@@ -133,7 +162,7 @@ public class RSSReader {
 		 * 	write straight to db?
 		 */
 		
-		ArrayList<String> result = new ArrayList<String>();
+		ArrayList<RSSLink> result = new ArrayList<RSSLink>();
 
 		InputStream is = new ByteArrayInputStream(rssFeed.getBytes());
 		
@@ -141,10 +170,91 @@ public class RSSReader {
 		SyndFeed feed;
 		feed = input.build(new XmlReader(is));
 		List<SyndEntry> entries = feed.getEntries();
+		
 		for (SyndEntry ent : entries) {
-			result.add(ent.getLink());
+			String url = ent.getLink();
+			if(!database.isCrawled(url)) {
+				try {
+					RSSLink current = attachCategories(ent);
+					result.add(current);
+				} catch (Exception e) {
+					// fail silently
+				}
+			}
 		}
 
 		return result;
+	}
+	
+	private RSSLink attachCategories(SyndEntry entry) throws Exception {
+		List<SyndCategory> categories = entry.getCategories();
+		HashSet<String> cats = new HashSet<String>();
+		if (!categories.isEmpty()) {
+			for (SyndCategory cat : categories) {
+				cats.add(cat.getName());
+			}
+		} else {
+			String description = entry.getDescription().getValue();
+			Category dictionary = Category.getInstance();
+			cats = dictionary.getTags(description);
+		}
+		
+		Long rtt = getRTT(entry.getLink());
+		return new RSSLink(entry.getLink(), rtt, cats);
+	}
+	
+	private Long getRTT(String url) throws Exception {
+		URI uri = new URI(url);
+		
+		Socket sock = createSocket(uri);
+		if (sock == null) throw new Exception();
+		String getRequest = generateGetRequest(uri);
+		
+		// measure time
+		Long start = System.currentTimeMillis();
+		DataOutputStream dos = new DataOutputStream(sock.getOutputStream());
+		dos.writeBytes(getRequest);
+		getResponse(sock);
+		Long end = System.currentTimeMillis();
+		
+		sock.close();
+		return end - start;
+	}
+
+	@Override
+	public void run() {
+		for (String rssLink : rssLinksSet) {
+			if(Thread.currentThread().isInterrupted()) {
+				// break
+				return;
+			} else {
+				ArrayList<RSSLink> links;
+				try {
+					links = getRSSLinks(rssLink);
+					for (RSSLink link : links) {
+						database.write(link);
+					}
+				} catch (ConnectException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (UnknownHostException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IllegalArgumentException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (URISyntaxException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (FeedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		}
+		
 	}
 }
