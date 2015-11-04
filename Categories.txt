@@ -1,0 +1,49 @@
+aes
+analysis
+analyze
+assembly
+binary
+blind sql
+buffer overflow
+cipher
+captcha
+cross site scripting
+crypto
+cryptography
+defensive
+elliptic curve
+exploit
+exploitation
+forensic
+heap overflow
+heartbleed
+injection
+lfi
+local file inclusion
+malware
+misc
+miscellaneous
+ocr
+offensive
+optical character recognition
+overflow
+programming
+pwn
+pwnable
+rc4
+recon
+reconnaisse
+rop
+rsa
+return oriented programming
+reverse
+reverse engineering
+reversing
+shell
+shellcode
+shell shock
+stego
+stegography
+sqli
+sql injection
+xss
