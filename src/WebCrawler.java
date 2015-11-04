@@ -195,6 +195,8 @@ public class WebCrawler implements Runnable {
 			categoryTag = category.getTags(doc);
 		}
 		
+		parallelCrawlerHandler.addRssUrl(getRssLink(doc));
+		
 		return absLinks;
 	}
 	

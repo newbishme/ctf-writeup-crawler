@@ -7,8 +7,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import com.sun.org.apache.xml.internal.resolver.helpers.PublicId;
-
 /**
  * 
  * This Category class will parse the given html and tag the url with the category that fit well with it.

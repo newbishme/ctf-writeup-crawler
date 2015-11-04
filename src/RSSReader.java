@@ -1,9 +1,11 @@
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.DataOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.net.URI;
@@ -60,6 +62,29 @@ public class RSSReader implements Runnable {
 			return dbHandler.isInserted(url);
 		}
 	}
+	
+/*	private class DB {
+		String testFileNameString = "rssLinks.txt";
+		public DB() {
+		}
+		
+		public void write(RSSLink link) {
+			
+			try {
+				PrintWriter writer = new PrintWriter(testFileNameString);
+				writer.println(link.url + " " + link.serverRT.toString());
+				writer.close();
+				
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		public boolean isCrawled (String url) {
+			return false;
+		}
+	}*/
 	
 	private HashSet<String> rssLinksSet;
 	private DB database;
@@ -255,6 +280,14 @@ public class RSSReader implements Runnable {
 				}
 			}
 		}
+	}
+	
+	public static void main(String[] args) {
+		HashSet<String> seedSet = new HashSet<String>();
+		seedSet.add("http://nandynarwhals.org/feed/");
+		seedSet.add("http://blog.squareroots.de/en/feed/");
 		
+		RSSReader reader = new RSSReader(seedSet);
+		reader.run();
 	}
 }
